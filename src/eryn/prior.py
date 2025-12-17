@@ -52,7 +52,7 @@ class UniformDistribution(object):
     def xp(self):
         """Numpy or Cupy"""
         xp = np if not self.use_cupy else cp
-        return xp 
+        return xp
 
     def rvs(self, size=1):
         if not isinstance(size, int) and not isinstance(size, tuple):
@@ -74,7 +74,7 @@ class UniformDistribution(object):
         out = self.pdf_val * ((x >= self.min_val) & (x <= self.max_val))
         if self.use_cupy and not self.return_gpu:
             return out.get()
-            
+
         return out
 
     def logpdf(self, x):
@@ -84,7 +84,7 @@ class UniformDistribution(object):
         out[(x < self.min_val) | (x > self.max_val)] = -np.inf
         if self.use_cupy and not self.return_gpu:
             return out.get()
-            
+
         return out
 
     def copy(self):
@@ -108,6 +108,78 @@ def uniform_dist(min, max, use_cupy=False, return_gpu=False):
 
     """
     dist = UniformDistribution(min, max, use_cupy=use_cupy, return_gpu=return_gpu)
+
+    return dist
+
+
+class NormalDistribution(object):
+
+    def __init__(self, mu=0.0, sigma=1.0, use_cupy=False, return_gpu=False):
+        self.mu = mu
+        self.sigma = sigma
+
+        self.pdf_val = np.sqrt(2 * np.pi * sigma**2)
+        self.logpdf_val = np.log(self.pdf_val)
+
+        self.use_cupy = use_cupy
+        self.return_gpu = return_gpu
+        if use_cupy:
+            try:
+                cp.abs(1.0)
+            except NameError:
+                raise ValueError("CuPy not found.")
+
+    @property
+    def xp(self):
+        """Numpy or Cupy"""
+        xp = np if not self.use_cupy else cp
+        return xp
+
+    def rvs(self, size=1):
+        if not isinstance(size, int) and not isinstance(size, tuple):
+            raise ValueError("size must be an integer or tuple of ints.")
+
+        out = self.xp.random.normal(size=size)
+
+        if self.use_cupy and not self.return_gpu:
+            return out.get()
+
+        return out
+
+    def pdf(self, x):
+        out = self.xp.exp(-0.5 * (x - self.mu) ** 2 / self.sigma**2) / self.pdf_val
+        if self.use_cupy and not self.return_gpu:
+            return out.get()
+
+        return out
+
+    def logpdf(self, x):
+        out = -0.5 * (x - self.mu) ** 2 / self.sigma**2 - self.logpdf_val
+        if self.use_cupy and not self.return_gpu:
+            return out.get()
+
+        return out
+
+    def copy(self):
+        return deepcopy(self)
+
+
+def normal_dist(mu=0.0, sigma=1.0, use_cupy=False, return_gpu=False):
+    """Generate normal distribution with mean ``mu`` and std ``sigma``
+
+    Args:
+        mu (double): Mean of the normal distribution
+        sigma (double): Standard deviation of the normal distribution
+        use_cupy (bool, optional): If ``True``, use CuPy. If ``False`` use Numpy.
+            (default: ``False``)
+        return_gpu (bool, optional): If ``True``, return CuPy array. If ``False``,
+            return Numpy array. (default: ``False``)
+
+    Returns:
+        :class:`NormalDistribution`: Normal distribution.
+
+    """
+    dist = NormalDistribution(mu, sigma, use_cupy=use_cupy, return_gpu=return_gpu)
 
     return dist
 
@@ -171,7 +243,7 @@ class MappedUniformDistribution:
     def xp(self):
         """Numpy or Cupy"""
         xp = np if not self.use_cupy else cp
-        return xp 
+        return xp
 
     def logpdf(self, x):
         """Get the log of the pdf value for this distribution.
@@ -209,7 +281,7 @@ class MappedUniformDistribution:
             raise ValueError("Size must be int or tuple of ints.")
 
         temp = self.dist.rvs(size=size)
-        
+
         out = self.max + (temp - 1.0) * self.diff
         if self.use_cupy and not self.return_gpu:
             return out.get()
@@ -310,7 +382,7 @@ class ProbDistContainer:
             if self.has_ints:
                 self.key_order = [i for i in range(current_ind)]  # here current_ind is the total count
                 assert not self.has_strings
-             
+
             temp_inds.append(np.asarray([inds_in]))
 
         uni_inds = np.unique(np.concatenate(temp_inds, axis=1).flatten())
@@ -327,12 +399,12 @@ class ProbDistContainer:
             item.use_cupy = use_cupy
             # need this because the prob dist container will conglomerate
             item.return_gpu = True
-            
+
     @property
     def xp(self):
         """Numpy or Cupy"""
         xp = np if not self.use_cupy else cp
-        return xp 
+        return xp
 
     def logpdf(self, x, keys=None):
         """Get logpdf by summing logpdf of individual distributions
