@@ -20,7 +20,8 @@ class HMCBase(Move):
 
     Args:
         grad_fn (callable, optional): User-supplied gradient function for the
-            active parameters. If ``None``, central finite difference gradients are used. (default: ``None``)
+            active parameters. If ``None``, central finite difference gradients
+            are used. (default: ``None``)
         priors (:class:`eryn.prior.ProbDistContainer`, optional): Prior
             container used to initialize finite-difference step sizes when
             ``grad_fn`` is ``None``. (default: ``None``)
@@ -35,7 +36,8 @@ class HMCBase(Move):
     Attributes:
         grad_fn (callable or ``None``): Gradient callback function.
         grad_clip (double or ``None``): Gradient clipping threshold.
-        finite_diff_eps (ndarray[ndim] or None): Per-dimension finite-difference step sizes.
+        finite_diff_eps (ndarray[ndim] or None): Per-dimension finite-difference
+            step sizes.
 
     """
 
@@ -83,10 +85,12 @@ class HMCBase(Move):
         Args:
             q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Position state.
             p (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Momentum state.
-            grad_q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Log posterior gradient evaluated at ``q``.
+            grad_q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Log posterior
+                gradient evaluated at ``q``.
             epsilon (double): Leapfrog step size.
             model (:class:`eryn.model.Model`): Model object used by sampler.
-            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask indicating active leaves.
+            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask
+                indicating active leaves.
             name (str): Branch name.
 
         Returns:
@@ -105,11 +109,13 @@ class HMCBase(Move):
         Args:
             q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Position state.
             p (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Momentum state.
-            grad_q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Log posterior gradient evaluated at ``q``.
+            grad_q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Log posterior
+                gradient evaluated at ``q``.
             epsilon (double): Leapfrog step size.
             n_steps (int): Number of leapfrog steps.
             model (:class:`eryn.model.Model`): Model object used by sampler.
-            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask indicating active leaves.
+            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask
+                indicating active leaves.
             name (str): Branch name.
 
         Returns:
@@ -153,7 +159,8 @@ class HMCBase(Move):
             q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Position state.
             p (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Momentum state.
             model (:class:`eryn.model.Model`): Model object used by sampler.
-            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask indicating active leaves.
+            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask
+                indicating active leaves.
             name (str): Branch name.
 
         Returns:
@@ -170,13 +177,15 @@ class HMCBase(Move):
     def _gradient(self, q, model, inds, name):
         """Compute gradient of the log posterior.
 
-        Uses ``self.grad_fn`` if defined. Otherwise,
-        central finite differences are used per dimension. Non-finite masking and optional clipping is applied.
+        Uses ``self.grad_fn`` if defined. Otherwise, central finite differences
+        are used per dimension. Non-finite masking and optional clipping is
+        applied.
 
         Args:
             q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Position state.
             model (:class:`eryn.model.Model`): Model object used by sampler.
-            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask indicating active leaves.
+            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask
+                indicating active leaves.
             name (str): Branch name.
 
         Returns:
@@ -267,7 +276,8 @@ class HMCBase(Move):
         Args:
             q (ndarray[ntemps, nwalkers, nlwaves_max, ndim]): Position state.
             model (:class:`eryn.model.Model`): Model object used by sampler.
-            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask indicating active leaves.
+            inds (ndarray[ntemps, nwalkers, nleaves_max]): Boolean mask
+                indicating active leaves.
             name (str): Branch name.
 
         Returns:
@@ -297,7 +307,10 @@ class HMCBase(Move):
                 implementations.
 
         Returns:
-            tuple: (Proposed coordinates, factors) -> (dict, ndarray). The factors are ``deltaK`` which is a ``ndarray[ntemps, nwalkers]`` of the change in kinetic energy between the proposed and current states.
+            tuple: (Proposed coordinates, factors) -> (dict, ndarray). The
+                factors are ``deltaK`` which is a ``ndarray[ntemps, nwalkers]``
+                of the change in kinetic energy between the proposed and
+                current states.
 
         Raises:
             NotImplementedError: If proposal is not implemented in subclass.
@@ -308,7 +321,9 @@ class HMCBase(Move):
     def setup(self, branches_coords):
         """Setup branch-dependent HMC configuration.
 
-        Must be defined in subclass. Creates per-branch dictionaries for settings such as integration step sizes, inverse mass metrics, or other hyperparameters.
+        Must be defined in subclass. Creates per-branch dictionaries for
+        settings such as integration step sizes, inverse mass metrics, or
+        other hyperparameters.
 
         Args:
             branches_coords (dict): Keys are ``branch_names`` and values are
@@ -333,8 +348,9 @@ class HMCBase(Move):
             state (:class:`eryn.state.State`): Current sampler state.
 
         Returns:
-            tuple: (state, accepted) -> (ndarray, ndarray) where ``state`` is the updated
-                sampler state and ``accepted`` is the accepted count array.
+            tuple: (state, accepted) -> (ndarray, ndarray) where ``state`` is
+                the updated sampler state and ``accepted`` is the accepted
+                count array.
 
         """
         # run setup if it hasn't been run already
@@ -355,9 +371,7 @@ class HMCBase(Move):
             all_branch_names
         ):
             # setup supplemental information
-            if not np.all(
-                np.asarray(list(state.branches_supplemental.values())) == None
-            ):
+            if not all(val is None for val in state.branches_supplemental.values()):
                 new_branch_supps = deepcopy(state.branches_supplemental)
             else:
                 new_branch_supps = None
@@ -469,10 +483,12 @@ class HMCMove(HMCBase):
 
     Algorithm 1 from `Hoffman & Gelman (2014) <https://arxiv.org/abs/1111.4246>`.
 
-    Each branch evolves using leapfrog integration with a fixed step size and fixed number of integration steps.
+    Each branch evolves using leapfrog integration with a fixed step size and
+    fixed number of integration steps.
 
     Args:
-        grad_fn (callable, optional): Likelihood gradient function. If ``None``, a central finite difference method is used.
+        grad_fn (callable, optional): Likelihood gradient function. If
+            ``None``, a central finite difference method is used.
             (default: ``None``)
         step_size (double or dict, optional): Leapfrog step size. If a dict,
             keys are branch names and values are per-branch step sizes.
@@ -480,8 +496,10 @@ class HMCMove(HMCBase):
         num_steps (int or dict, optional): Number of leapfrog steps. If a dict,
             keys are branch names and values are per-branch step counts.
             (default: ``20``)
-        inverse_metric (ndarray or dict, optional): Inverse mass-matrix for momenta. If a dict, keys are branch names and values are per-branch inverse mass matrices. If ``None``, identity matrices
-            are used. (default: ``None``)
+        inverse_metric (ndarray or dict, optional): Inverse mass-matrix for
+            momenta. If a dict, keys are branch names and values are per-branch
+            inverse mass matrices. If ``None``, identity matrices are used.
+            (default: ``None``)
         return_gpu (bool, optional): If ``use_gpu == True`` and
             ``return_gpu == True``, returned arrays remain on GPU. (default: ``False``)
         random_seed (int, optional): Random seed for the active array library.
@@ -577,7 +595,10 @@ class HMCMove(HMCBase):
             **kwargs (dict, optional): Extra keyword arguments for proposal.
 
         Returns:
-            tuple: (Proposed coordinates, factors) -> (dict, ndarray). The factors are ``deltaK`` which is a ``ndarray[ntemps, nwalkers]`` of the change in kinetic energy between the proposed and current states..
+            tuple: (Proposed coordinates, factors) -> (dict, ndarray). The
+                factors are ``deltaK`` which is a ``ndarray[ntemps, nwalkers]``
+                of the change in kinetic energy between the proposed and
+                current states..
 
         """
         # only run setup if it hasn't been run already
