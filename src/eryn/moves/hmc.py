@@ -27,7 +27,7 @@ class HMCBase(Move):
             ``grad_fn`` is ``None``. (default: ``None``)
         grad_clip (double or ``None``, optional): Clipping limit for
             gradient to improve numerical stability. If ``None``,
-            no clipping is applied. (default: ``1e10``)
+            no clipping is applied. (default: ``1e6``)
         **kwargs (dict, optional): Kwargs for parent classes. (default: ``{}``)
 
     Raises:
@@ -41,7 +41,7 @@ class HMCBase(Move):
 
     """
 
-    def __init__(self, grad_fn=None, priors=None, grad_clip=1e10, **kwargs):
+    def __init__(self, grad_fn=None, priors=None, grad_clip=1e6, **kwargs):
         Move.__init__(self, **kwargs)
         self.grad_fn = grad_fn
         self.grad_clip = grad_clip
@@ -401,6 +401,7 @@ class HMCBase(Move):
                 branches_inds=inds_going_for_proposal,
                 supps=new_supps,
                 branch_supps=new_branch_supps,
+                model=model
             )
 
             # account for gibbs sampling
@@ -443,10 +444,7 @@ class HMCBase(Move):
 
             # get previous information
             prev_logl = state.log_like
-
             prev_logp = state.log_prior
-
-            # takes care of tempering
             prev_logP = self.compute_log_posterior(prev_logl, prev_logp)
 
             # determine acceptance (-delta_H = delta_logP - deltaK)
@@ -455,7 +453,7 @@ class HMCBase(Move):
             # draw against acceptance fraction
             accepted = Hdiff > np.log(model.random.rand(ntemps, nwalkers))
 
-            # Update the parameters
+            # update the parameters
             new_state = State(
                 q,
                 log_like=logl,
@@ -502,8 +500,6 @@ class HMCMove(HMCBase):
             (default: ``None``)
         return_gpu (bool, optional): If ``use_gpu == True`` and
             ``return_gpu == True``, returned arrays remain on GPU. (default: ``False``)
-        random_seed (int, optional): Random seed for the active array library.
-            (default: ``None``)
         kwargs (dict, optional): Additional keyword arguments passed through
             :class:`HMCBase`.
 
@@ -598,7 +594,7 @@ class HMCMove(HMCBase):
             tuple: (Proposed coordinates, factors) -> (dict, ndarray). The
                 factors are ``deltaK`` which is a ``ndarray[ntemps, nwalkers]``
                 of the change in kinetic energy between the proposed and
-                current states..
+                current states.
 
         """
         # only run setup if it hasn't been run already
