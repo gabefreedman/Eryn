@@ -9,6 +9,8 @@ from .mh import MHMove
 from .move import Move
 from .red_blue import RedBlueMove
 from .stretch import StretchMove
+from .hmc import HMCMove
+from .hmc_adapt import AdaptHMCMove
 
 # from .walk import WalkMove
 from .tempering import TemperatureControl
@@ -23,12 +25,13 @@ from .combine import CombineMove
 # from .basicmodelswaprj import BasicSymmetricModelSwapRJMove
 from .mtdistgen import MTDistGenMove
 from .mtdistgenrj import MTDistGenMoveRJ
-from .multipletry import MultipleTryMove
 
 __all__ = [
     "Move",
     "MHMove",
     "GaussianMove",
+    "HMCMove",
+    "AdaptHMCMove",
     "RedBlueMove",
     "StretchMove",
     "DistributionGenerateRJ",
@@ -39,4 +42,6 @@ __all__ = [
     "GroupMove",
     "GroupStretchMove",
     "CombineMove",
+    "MTDistGenMove",
+    "MTDistGenMoveRJ",
 ]
