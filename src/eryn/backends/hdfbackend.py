@@ -400,7 +400,7 @@ class HDFBackend(Backend):
     def key_order(self):
         """Key order of parameters for each model."""
         with self.open() as f:
-            return {key: value for key, value in f[self.name]["key_order"].attrs.items()}
+            return {key: list(value) for key, value in f[self.name]["key_order"].attrs.items()}
 
     @property
     def nwalkers(self):
