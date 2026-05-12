@@ -83,7 +83,7 @@ class FlowMove(MHMove):
             q[name] = coords.copy()
 
             # get flow density at current state
-            flow_density_i = log_prob(self.flow, q[name][inds_here])
+            flow_density_i = log_prob(self.flow, q[name][inds_here]).reshape((ntemps, nwalkers))
 
             # propose new state from normalizing flow
             new_coords = sample(
@@ -94,7 +94,7 @@ class FlowMove(MHMove):
             q[name][inds_here] = new_coords.copy()
 
             # get flow density at proposed state
-            flow_density_f = log_prob(self.flow, q[name][inds_here])
+            flow_density_f = log_prob(self.flow, q[name][inds_here]).reshape((ntemps, nwalkers))
 
             # update factors
             factors += flow_density_i - flow_density_f
