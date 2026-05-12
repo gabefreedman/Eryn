@@ -64,7 +64,7 @@ class FlowMove(MHMove):
 
         # initialize output
         q = {}
-        for i, (name, coords) in zip(branches_coords.keys(), branches_coords.values()):
+        for i, (name, coords) in enumerate(zip(branches_coords.keys(), branches_coords.values())):
             ntemps, nwalkers, nleaves_max, ndim = coords.shape
 
             # setup inds accordingly
