@@ -20,6 +20,7 @@ from .group import GroupMove
 from .groupstretch import GroupStretchMove
 from .combine import CombineMove
 from .flow import FlowMove
+from .priordraw import PriorDraw
 
 # from .basicmodelswaprj import BasicSymmetricModelSwapRJMove
 from .mtdistgen import MTDistGenMove
@@ -41,4 +42,5 @@ __all__ = [
     "GroupStretchMove",
     "CombineMove",
     "FlowMove",
+    "PriorDraw",
 ]
